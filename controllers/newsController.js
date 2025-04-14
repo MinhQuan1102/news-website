@@ -31,12 +31,44 @@ const getNewsByCategory = async (req, res) => {
 }
 
 const getFeaturedNews = async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.pageSize) || 10;
+    const skip = (page - 1) * limit;
     try {
-        const topNews = await News.find()
+        const total = await News.countDocuments({});
+        const topNews = await News.find({})
+            .skip(skip)
+            .limit(limit)
             .sort({ views: -1 })           
-            .limit(4)                       
     
-        res.status(200).json({ message: "Get featured news successfully", data: topNews });
+        res.status(200).json({ 
+            message: "Get featured news successfully", 
+            data: topNews, currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalItems: total, 
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Internal server error", error });
+    }
+}
+
+const getLatestNews = async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.pageSize) || 10;
+    const skip = (page - 1) * limit;
+    try {
+        const total = await News.countDocuments({});
+        const topNews = await News.find({})
+            .skip(skip)
+            .limit(limit)
+            .sort({ createdAt: -1 })           
+    
+        res.status(200).json({ 
+            message: "Get latest news successfully", 
+            data: topNews, currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalItems: total, 
+        });
     } catch (error) {
         res.status(500).json({ message: "Internal server error", error });
     }
@@ -111,13 +143,13 @@ const searchNews = async (req, res) => {
       
         const total = await News.countDocuments(query);
         const news = await News.find(query)
-            .populate("author", "username avatar")
+            .populate("author", "username avatar email")
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);
 
         res.status(200).json({
-            message: "Get news by categoey successfully",
+            message: "Search news successfully",
             currentPage: page,
             totalPages: Math.ceil(total / limit),
             totalItems: total,
@@ -219,4 +251,4 @@ const deleteNews = async (req, res) => {
     }
 }
 
-module.exports = { getNewsByCategory, getFeaturedNews, getNewsById, getNewsOfUser, searchNews, createNews, updateNews, increaseView, deleteNews }
+module.exports = { getNewsByCategory, getFeaturedNews, getLatestNews, getNewsById, getNewsOfUser, searchNews, createNews, updateNews, increaseView, deleteNews }
