@@ -1,3 +1,6 @@
+//@description    Get all news categories
+//@route          POST /api/news/category
+//@access         Public
 const getAllCategories = async (req, res) => {
     try {
         const categories = [

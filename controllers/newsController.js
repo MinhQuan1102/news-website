@@ -1,5 +1,8 @@
 const News = require("../models/News");
 
+//@description    Get news list by category
+//@route          GET api/news?category=
+//@access         Public
 const getNewsByCategory = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
@@ -30,6 +33,9 @@ const getNewsByCategory = async (req, res) => {
     }
 }
 
+//@description    Get most views news
+//@route          GET api/news/featured
+//@access         Public
 const getFeaturedNews = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.pageSize) || 10;
@@ -74,6 +80,9 @@ const getLatestNews = async (req, res) => {
     }
 }
 
+//@description    Get news detail by id
+//@route          GET api/news/:id
+//@access         Public
 const getNewsById = async (req, res) => {
     try {
         const news = await News.findById(req.params.id)
@@ -103,6 +112,9 @@ const getNewsById = async (req, res) => {
     }
 }
 
+//@description    Get news of a user
+//@route          GET api/news/user/:id
+//@access         Public
 const getNewsOfUser = async (req, res) => {
     try {
         const userId = req.params.id;
@@ -129,6 +141,9 @@ const getNewsOfUser = async (req, res) => {
     }
 }
 
+//@description    Search news
+//@route          GET api/news/search
+//@access         Public
 const searchNews = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
@@ -160,6 +175,9 @@ const searchNews = async (req, res) => {
     }
 }
 
+//@description    Create new news
+//@route          POST api/news
+//@access         Protected
 const createNews = async (req, res) => {
     try {
         if (!req.user || !req.user._id) {
@@ -190,6 +208,9 @@ const createNews = async (req, res) => {
     }
 }
 
+//@description    Update an existing news
+//@route          PUT api/news/:id
+//@access         Protected
 const updateNews = async (req, res) => {
     try {
         const news = await News.findById(req.params.id);
@@ -200,7 +221,7 @@ const updateNews = async (req, res) => {
     
         const updatedNews = await News.findByIdAndUpdate(req.params.id, {
             $set: req.body, 
-        });
+        }, { new: true });
         return res.status(200).json({ message: "Updated news successfully", data: updatedNews });
     } catch (error) {
         res.status(500).json({
@@ -210,6 +231,9 @@ const updateNews = async (req, res) => {
     }
 }
 
+//@description    Increase 1 view of a news
+//@route          PUT api/news/:id/view
+//@access         Public
 const increaseView = async (req, res) => {
     try {
         const updated = await News.findByIdAndUpdate(
@@ -231,16 +255,15 @@ const increaseView = async (req, res) => {
     }
 }
 
+//@description    Delete a news
+//@route          DELETE api/news/:id
+//@access         Protected
 const deleteNews = async (req, res) => {
     try {
         const news = await News.findById(req.params.id);
     
         if (!news) {
           return res.status(404).json({ message: "News not found." });
-        }
-    
-        if (news.author.toString() !== req.session.user._id) {
-          return res.status(403).json({ message: "You are not allowed to delete this news." });
         }
     
         await News.findByIdAndDelete(req.params.id);

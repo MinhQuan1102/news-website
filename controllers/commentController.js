@@ -1,6 +1,9 @@
 const News = require("../models/News");
 const Comment = require("../models/Comment");
 
+//@description    Create / reply a comment
+//@route          POST /api/comments/:newsId
+//@access         Protected
 const createComment = async (req, res) => {
     try {
         const { content, replyTo } = req.body;
@@ -42,16 +45,15 @@ const createComment = async (req, res) => {
     }
 }
 
+//@description    Update an existing comment
+//@route          POST /api/comments/:id
+//@access         Protected
 const updateComment = async (req, res) => {
     try {
         const comment = await Comment.findById(req.params.id);
     
         if (!comment) {
           return res.status(404).json({ message: "Comment not found." });
-        }
-    
-        if (comment.author.toString() !== req.session.user._id) {
-            return res.status(403).json({ message: "You are not allowed to update this comment." });
         }
     
         const updatedComment = await Comment.findByIdAndUpdate(req.params.id, {
@@ -65,16 +67,16 @@ const updateComment = async (req, res) => {
         });
     }
 }
+
+//@description    Delete comment
+//@route          DELETE /api/comments/:id
+//@access         Protected
 const deleteComment = async (req, res) => {
     try {
         const comment = await Comment.findById(req.params.id);
     
         if (!comment) {
           return res.status(404).json({ message: "Comment not found." });
-        }
-    
-        if (comment.author.toString() !== req.session.user._id) {
-          return res.status(403).json({ message: "You are not allowed to delete this comment." });
         }
     
         await Comment.findByIdAndDelete(req.params.id);

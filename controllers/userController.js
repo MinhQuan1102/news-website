@@ -1,6 +1,9 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 
+//@description    Get user profile
+//@route          GET api/user/profile/:id
+//@access         Protected
 const getProfile = async (req, res) => {
     try {
         const userId = req.params.id;
@@ -22,6 +25,9 @@ const getProfile = async (req, res) => {
     }
 }
 
+//@description    Update user profile
+//@route          PUT api/user/:id
+//@access         Protected
 const updateProfile = async (req, res) => {
     if (req.params.id) {
         const userId = req.params.id
@@ -31,10 +37,10 @@ const updateProfile = async (req, res) => {
         }
 
         if (req.body.password) {
-            // const isMatch = await bcrypt.compare(req.body.password, user.password);
-            // if (!isMatch) {
-            //     return res.status(400).json({ message: "Wrong password!" });
-            // }
+            const isMatch = await bcrypt.compare(req.body.password, user.password);
+            if (!isMatch) {
+                return res.status(400).json({ message: "Wrong password!" });
+            }
             try {
                 const salt = await bcrypt.genSalt(10);
                 req.body.password = await bcrypt.hash(req.body.password, salt);
